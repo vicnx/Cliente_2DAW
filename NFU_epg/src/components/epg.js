@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import data from '../data/epg.json';
 import './epg.css';
-import {IonContent,IonCard,IonCardSubtitle, IonCardHeader,IonCardTitle,IonCardContent, IonSlides, IonSlide, IonCol} from '@ionic/react';
+import {IonContent,IonCard,IonCardSubtitle, IonCardHeader,IonCardTitle,IonItem, IonSlides, IonSlide, IonRow} from '@ionic/react';
 export default class Epgloader extends Component {
     constructor(props ) {
       super(props);
       this.state = {epg:{data},isLoaded:false};
       this.options = {
-        virtual:true,
-        spaceBetween: 0,
-        slidesPerView: 5,
-    }
+        slidesPerView: 'auto', 
+        zoom: false, 
+        grabCursor: true,       
+        virtual: true, 
+        }
     }
   
     componentDidMount() {
@@ -25,62 +26,49 @@ export default class Epgloader extends Component {
     componentWillUnmount() {
     //   clearInterval(this.timerID);
     }
-  
-    // tick() {
-    //   this.setState({
-    //     date: new Date()
-    //   });
-    // }
+    
+    secondstotime(seconds){
+        return new Date(seconds * 1000).toISOString().substr(11, 8)
+    }
+
+    handleClick(start,duration){
+        alert("start:"+this.secondstotime(start)+ " End:"+(this.secondstotime(start+duration))); 
+    }
   
     render() {
         if(this.state.isLoaded){
             console.log(this.state.epg);
             const events_array = Object.values(this.state.epg.events);
-            console.log(events_array);
+            console.log(this.secondstotime(events_array.slice(0)[0].spa.start));
+            console.log(this.secondstotime(events_array.slice(-1)[0].spa.start+events_array.slice(-1)[0].spa.duration));
+
+
             return (
                 <IonContent>
-                    <IonSlides options={this.options}>
-                        {events_array.map(function(event){
-                            return (
-                                <IonSlide key={event.spa.id}> 
+                    <IonRow>
+                        <IonSlides options={this.options}>
+
+                            {events_array.map((event) => (
+                                <IonSlide style={{width:event.spa.duration/7}}  key={event.spa.id} onClick={ 
+                                        () => this.handleClick(event.spa.start,event.spa.duration) 
+                                    }> 
+                                    <IonRow className="timeline">
+                                        <span>{this.secondstotime(event.spa.start)}</span>
+                                    </IonRow>
                                     <IonCard>
                                         <IonCardHeader>
                                             <IonCardSubtitle>{event.spa.id}</IonCardSubtitle>
                                             <IonCardTitle>{event.spa.name}</IonCardTitle>
+                                            Start: {this.secondstotime(event.spa.start)}<br></br>
+                                            End: {this.secondstotime(event.spa.start+event.spa.duration)}<br></br>
+                                            Duration: {this.secondstotime(event.spa.duration)}
                                         </IonCardHeader>
-
-                                        <IonCardContent>
-                                                Keep close to Nature's heart... and break clear away, once in awhile,
-                                                and climb a mountain or spend a week in the woods. Wash your spirit clean.
-                                        </IonCardContent>
                                     </IonCard>
-                                </IonSlide>)
-                        })}
-                    </IonSlides>
-              </IonContent>
-                // <IonRow>
-                //     <IonLabel>
-                //         <h1>{this.state.epg.title}</h1>
-                //     </IonLabel>
-                    
-                //     <IonSlides pager={true} options={this.options}>
-                        
-                //         <section className="events">
-                //             {events_array.map(function(event){
-                //                 return (
-                //                 <IonSlide key={event.spa.id}> 
-                //                     <IonCol>
-                //                         <div  className="events__event">
-                //                             <span>ID: {event.spa.id}</span><br></br>
-                //                             <span>Name: {event.spa.name}</span><br></br>
-                //                         </div>
-                //                     </IonCol>
-                //                 </IonSlide>)
-                //             })}
-                //         </section>
-                //     </IonSlides>
-                // </IonRow>
-
+                                </IonSlide>
+                            ))}
+                        </IonSlides>
+                    </IonRow>
+                </IonContent>
                 
           );
         }
