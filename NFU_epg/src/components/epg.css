@@ -20,3 +20,6 @@ ion-slide{
 .swiper-wrapper{
   width:10000px!important;
 }
+.timeline_day{
+  height: 50px;
+}
